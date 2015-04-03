@@ -1,5 +1,7 @@
 package com.example.android.sunshine.app;
 
+import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -10,7 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
-
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -50,6 +53,14 @@ public class MainActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        String[] weekForecast = {
+            "Today - Sunny - 88 / 63",
+            "Tomorrow - Foggy - 70 / 46",
+            "Weds - Cloudy - 72 / 63",
+            "Thurs - Rainy - 64 / 31",
+            "Fri - Foggy - 70 / 46",
+            "Sat - Sunny - 76 / 68"
+        };
 
         public PlaceholderFragment() {
         }
@@ -58,6 +69,13 @@ public class MainActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            FragmentActivity mContext = getActivity();
+            ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<String>(mContext,
+                        R.layout.list_item_forecast,
+                        R.id.list_item_forecast_textview,
+                        weekForecast);
+            ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+            listView.setAdapter(mForecastAdapter);
             return rootView;
         }
     }
