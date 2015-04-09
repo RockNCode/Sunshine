@@ -1,6 +1,7 @@
 package com.example.android.sunshine.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +40,8 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
     ArrayAdapter<String> mForecastAdapter;
+    public final static String WEATHER_CURRENT = "com.example.android.sunshine.weather_current";
+
     public ForecastFragment() {
     }
 
@@ -95,12 +98,11 @@ public class ForecastFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String strWeather = mForecastAdapter.getItem(position) ;
                 Context ctx = getActivity();
-                String strWeather = mForecastAdapter.getItem(position).toString() ;
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(ctx,strWeather,duration);
-                toast.show();
+                Intent details = new Intent(ctx, DetailActivity.class);
+                details.putExtra(WEATHER_CURRENT,strWeather);
+                startActivity(details);
             }
         });
 
