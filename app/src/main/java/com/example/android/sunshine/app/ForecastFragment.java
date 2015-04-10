@@ -2,9 +2,11 @@ package com.example.android.sunshine.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
@@ -44,7 +46,19 @@ public class ForecastFragment extends Fragment {
 
     public ForecastFragment() {
     }
-
+    private void updateWeather()
+    {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = sharedPreferences.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        FetchWeatherTask weatherTask =  new FetchWeatherTask();
+        weatherTask.execute(location);
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+        updateWeather();
+    }
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -61,10 +75,9 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
+
         if(id == R.id.action_refresh) {
-            Log.e("WEATHER", "Selected refresh");
-            FetchWeatherTask weatherTask =  new FetchWeatherTask();
-            weatherTask.execute("94043");
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -73,16 +86,6 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        String[] data = {
-                "Today - Sunny - 88 / 63",
-                "Tomorrow - Foggy - 70 / 46",
-                "Weds - Cloudy - 72 / 63",
-                "Thurs - Rainy - 64 / 31",
-                "Fri - Foggy - 70 / 46",
-                "Sat - Sunny - 76 / 68"
-        };
-
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         FragmentActivity mContext = getActivity();
@@ -90,7 +93,7 @@ public class ForecastFragment extends Fragment {
         mForecastAdapter = new ArrayAdapter<String>(mContext,
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                weekForecast);
+                new ArrayList<String>());
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -243,6 +246,7 @@ public class ForecastFragment extends Fragment {
 
                 String myUrl = uriBuilder.build().toString();
                 //URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7");
+                Log.e("Manuel" , myUrl);
                 URL url = new URL(myUrl);
 
                 // Create the request to OpenWeatherMap, and open the connection
