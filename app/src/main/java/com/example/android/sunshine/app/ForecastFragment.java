@@ -3,6 +3,7 @@ package com.example.android.sunshine.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,6 +81,17 @@ public class ForecastFragment extends Fragment {
             updateWeather();
             return true;
         }
+        if(id == R.id.action_preferred_location) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String latitude = sharedPreferences.getString(getString(R.string.pref_latitude_key),
+                    getString(R.string.pref_latitude_default));
+            String longitude = sharedPreferences.getString(getString(R.string.pref_longitude_key),
+                    getString(R.string.pref_longitude_default));
+
+            Uri gmmIntentUri = Uri.parse("geo:"+latitude+","+longitude);
+            showMap(gmmIntentUri);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -121,6 +133,13 @@ public class ForecastFragment extends Fragment {
         return shortenedDateFormat.format(time);
     }
 
+    public void showMap(Uri geoLocation) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
     /**
      * Prepare the weather high/lows for presentation.
      */
@@ -165,10 +184,22 @@ public class ForecastFragment extends Fragment {
         final String OWM_MAX = "max";
         final String OWM_MIN = "min";
         final String OWM_DESCRIPTION = "main";
+        final String OWN_CITY = "city";
+        final String OWN_COORD = "coord";
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+        JSONObject coordenatesJson = forecastJson.getJSONObject(OWN_CITY).getJSONObject(OWN_COORD);
 
+        double latitude = coordenatesJson.getDouble("lat");
+        double longitude = coordenatesJson.getDouble("lon");
+
+        editor.putString(getString(R.string.pref_latitude_key),Double.toString(latitude));
+        editor.putString(getString(R.string.pref_longitude_key),Double.toString(longitude));
+
+        editor.commit();
         // OWM returns daily forecasts based upon the local time of the city that is being
         // asked for, which means that we need to know the GMT offset to translate this data
         // properly.
@@ -259,7 +290,6 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(STR_COUNT,"7");
 
                 String myUrl = uriBuilder.build().toString();
-
                 URL url = new URL(myUrl);
 
                 // Create the request to OpenWeatherMap, and open the connection
