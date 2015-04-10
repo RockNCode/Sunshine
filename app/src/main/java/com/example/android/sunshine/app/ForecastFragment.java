@@ -126,6 +126,15 @@ public class ForecastFragment extends Fragment {
      */
     private String formatHighLows(double high, double low) {
         // For presentation, assume the user doesn't care about tenths of a degree.
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String temp_units = sharedPreferences.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_default));
+
+        if(temp_units.equals("Imperial")){
+            high = getFarenheit(high);
+            low = getFarenheit(low);
+        }
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
@@ -133,6 +142,11 @@ public class ForecastFragment extends Fragment {
         return highLowStr;
     }
 
+    private double getFarenheit(double celsius)
+    {
+        double farenheit = (celsius * 9 / 5 ) + 32;
+        return farenheit;
+    }
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -245,8 +259,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(STR_COUNT,"7");
 
                 String myUrl = uriBuilder.build().toString();
-                //URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7");
-                Log.e("Manuel" , myUrl);
+
                 URL url = new URL(myUrl);
 
                 // Create the request to OpenWeatherMap, and open the connection

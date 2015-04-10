@@ -16,4 +16,13 @@
     <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
     <string name="pref_location_default" translatable="false">94043</string>
 
+    <!-- Label for the units preference [CHAR LIMIT=30] -->
+    <string name="pref_units_label">Temperature Units</string>
+
+    <!-- Key name for units location in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_units_key" translatable="false">Metric</string>
+
+    <!-- Default postal code for units preference [CHAR LIMIT=NONE] -->
+    <string name="pref_units_default" translatable="false">Metric</string>
+
 </resources>
