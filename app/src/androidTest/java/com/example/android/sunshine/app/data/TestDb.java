@@ -21,6 +21,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class TestDb extends AndroidTestCase {
 
@@ -176,6 +178,52 @@ public class TestDb extends AndroidTestCase {
         dbHelper.close();
     }
 
+    public void testRecordLocation()
+    {
+        final String TEST_LOCATION = "99705";
+        final long TEST_DATE = 1419033600L;
+
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, TEST_LOCATION);
+        contentValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "North Pole");
+        contentValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, 64.7488);
+        contentValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, -147.353);
+
+        long rowId;
+        rowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME,null,contentValues);
+
+        assertTrue(rowId != -1);
+
+        Cursor cursor = db.query(
+                WeatherContract.LocationEntry.TABLE_NAME,  // Table to Query
+                null, // all columns
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null, // columns to group by
+                null, // columns to filter by row groups
+                null // sort order
+        );
+
+        assertTrue( "Error: No Records returned from location query", cursor.moveToFirst() );
+
+        String error = "Test values";
+
+        Set<Map.Entry<String, Object>> valueSet = contentValues.valueSet();
+        for (Map.Entry<String, Object> entry : valueSet) {
+            String columnName = entry.getKey();
+            int idx = cursor.getColumnIndex(columnName);
+            assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
+            String expectedValue = entry.getValue().toString();
+            assertEquals("Value '" + entry.getValue().toString() +
+                    "' did not match the expected value '" +
+                    expectedValue + "'. " + error, expectedValue, cursor.getString(idx));
+        }
+        cursor.close();
+        db.close();
+    }
 
     /*
         Students: This is a helper method for the testWeatherTable quiz. You can move your
@@ -234,4 +282,5 @@ public class TestDb extends AndroidTestCase {
         db.close();
         return locationRowId;
     }
+
 }
