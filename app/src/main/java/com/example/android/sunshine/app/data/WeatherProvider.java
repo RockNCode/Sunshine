@@ -269,6 +269,7 @@ public class WeatherProvider extends ContentProvider {
             }
             case LOCATION: {
                 rowsDeleted = db.delete(WeatherContract.LocationEntry.TABLE_NAME,selection,selectionArgs);
+                break;
             }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
