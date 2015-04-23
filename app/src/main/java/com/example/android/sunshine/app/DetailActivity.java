@@ -72,7 +72,9 @@ public class DetailActivity extends ActionBarActivity {
     public static class DetailFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
         public static final String LOG_TAG = DetailFragment.class.getCanonicalName();
         private static final String FORECAST_SHARE_HASHTAG = "#SunshineApp";
-        private String  mForecastStr;
+
+        private ShareActionProvider mShareActionProvider;
+        private String  mForecast;
 
         private static final int DETAIL_LOADER = 0;
         private static final String[] FORECAST_COLUMNS = {
@@ -129,10 +131,10 @@ public class DetailActivity extends ActionBarActivity {
             String maxTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP),isMetric);
             String minTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP),isMetric);
 
-            mForecastStr = String.format("%s - %s - %s/%s", date, desc, maxTemp, minTemp);
+            mForecast = String.format("%s - %s - %s/%s", date, desc, maxTemp, minTemp);
             TextView detailTextview = (TextView)getView().findViewById(R.id.detail_text);
 
-            detailTextview.setText(mForecastStr);
+            detailTextview.setText(mForecast);
         }
 
         @Override
@@ -145,13 +147,13 @@ public class DetailActivity extends ActionBarActivity {
             inflater.inflate(R.menu.detailfragment, menu);
             MenuItem menuItem = menu.findItem(R.id.action_share);
 
-            ShareActionProvider mShareActionProvider =
+            mShareActionProvider =
                     (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-            if(mShareActionProvider != null){
-                mShareActionProvider.setShareIntent(createShareForecastIntent());
-            }else{
-                Log.d("Manuel", "Share Action Provider is null");
+            if(mShareActionProvider != null) {
+                if (mForecast != null) {
+                    mShareActionProvider.setShareIntent(createShareForecastIntent());
+                }
             }
         }
 
@@ -168,7 +170,7 @@ public class DetailActivity extends ActionBarActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT,mForecastStr + FORECAST_SHARE_HASHTAG);
+            shareIntent.putExtra(Intent.EXTRA_TEXT,mForecast + FORECAST_SHARE_HASHTAG);
             return shareIntent;
         }
     }
