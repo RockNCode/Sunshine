@@ -49,7 +49,7 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
 
     private ForecastAdapter mForecastAdapter;
     public final static String WEATHER_CURRENT = "com.example.android.sunshine.weather_current";
-    private static final int MY_LOADER_ID = 0;
+    private static final int FORECAST_LOADER = 0;
     SimpleCursorAdapter simpleCursorAdapter;
 
     private static final String[] FORECAST_COLUMNS = {
@@ -179,15 +179,16 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
         return rootView;
     }
 
+    // since we read the location when we create the loader, all we need to do is restart things
+    void onLocationChanged( ) {
+        updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
+
     private void updateWeather() {
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         String location = Utility.getPreferredLocation(getActivity());
         weatherTask.execute(location);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
-    }
 }
