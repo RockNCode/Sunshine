@@ -1,6 +1,7 @@
 package com.example.android.sunshine.app;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -121,15 +122,16 @@ public class DetailActivity extends ActionBarActivity {
 
         @Override
         public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor){
-            boolean isMetric = Utility.isMetric(getActivity());
+            Context ctx = getActivity();
+            boolean isMetric = Utility.isMetric(ctx);
 
             if (!cursor.moveToFirst()) { return; }
 
             String date = Utility.formatDate(cursor.getLong(COL_WEATHER_DATE));
             String desc = cursor.getString(COL_WEATHER_DESC);
 
-            String maxTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP),isMetric);
-            String minTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP),isMetric);
+            String maxTemp = Utility.formatTemperature(ctx,cursor.getDouble(COL_WEATHER_MAX_TEMP),isMetric);
+            String minTemp = Utility.formatTemperature(ctx,cursor.getDouble(COL_WEATHER_MIN_TEMP),isMetric);
 
             mForecast = String.format("%s - %s - %s/%s", date, desc, maxTemp, minTemp);
             TextView detailTextview = (TextView)getView().findViewById(R.id.detail_text);
